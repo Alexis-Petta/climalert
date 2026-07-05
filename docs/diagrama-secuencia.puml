@@ -1,0 +1,37 @@
+@startuml
+title Climalert - Flujo de monitoreo y alerta
+
+autonumber
+participant "WeatherPollingScheduler" as Poller
+participant "WeatherApiClient" as Client
+participant "WeatherHistoryService" as History
+database "H2" as DB
+participant "AlertAnalysisScheduler" as Analyzer
+participant "WeatherAlertService" as AlertService
+participant "AlertEvaluator" as Evaluator
+participant "EmailAlertNotifier" as Mailer
+participant "SMTP" as SMTP
+
+Poller -> Client: consultar clima actual
+Client --> Poller: WeatherSnapshot
+Poller -> History: guardar medicion
+History -> DB: INSERT weather_records
+
+Analyzer -> AlertService: analizar ultima medicion
+AlertService -> DB: buscar ultima medicion
+DB --> AlertService: WeatherRecord
+AlertService -> Evaluator: esCritica(record)
+Evaluator --> AlertService: true/false
+
+alt condiciones criticas
+  AlertService -> DB: INSERT weather_alerts
+  AlertService -> Mailer: enviar alerta
+  Mailer -> SMTP: enviar email
+  SMTP --> Mailer: OK
+  Mailer --> AlertService: SENT
+  AlertService -> DB: actualizar estado notificacion
+else condiciones normales
+  AlertService --> Analyzer: sin alerta
+end
+
+@enduml

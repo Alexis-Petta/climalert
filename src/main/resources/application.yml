@@ -1,0 +1,58 @@
+spring:
+  application:
+    name: climalert
+  datasource:
+    url: jdbc:h2:file:./data/climalert-db
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+  mail:
+    host: ${SPRING_MAIL_HOST:localhost}
+    port: ${SPRING_MAIL_PORT:1025}
+    username: ${SPRING_MAIL_USERNAME:}
+    password: ${SPRING_MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: ${SPRING_MAIL_SMTP_AUTH:false}
+          starttls:
+            enable: ${SPRING_MAIL_STARTTLS_ENABLE:false}
+
+server:
+  port: ${SERVER_PORT:8080}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+logging:
+  level:
+    ar.edu.utn.dsi.climalert: INFO
+
+climalert:
+  weather-api:
+    base-url: ${WEATHER_API_BASE_URL:https://api.weatherapi.com/v1}
+    api-key: ${WEATHER_API_KEY:}
+    location: ${CLIMALERT_LOCATION:-34.6037,-58.3816}
+  scheduler:
+    weather-poll-ms: ${CLIMALERT_WEATHER_POLL_MS:300000}
+    alert-check-ms: ${CLIMALERT_ALERT_CHECK_MS:60000}
+    initial-delay-ms: ${CLIMALERT_INITIAL_DELAY_MS:5000}
+  alert:
+    max-temperature-c: ${CLIMALERT_MAX_TEMP_C:35}
+    min-humidity: ${CLIMALERT_MIN_HUMIDITY:60}
+  notification:
+    enabled: ${CLIMALERT_MAIL_ENABLED:false}
+    recipients:
+      - admin@clima.com
+      - emergencias@clima.com
+      - meteorologia@clima.com
